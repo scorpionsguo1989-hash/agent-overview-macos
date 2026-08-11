@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added a synthetic-data UI preview to the public documentation.
+- Added clearer community contribution and screenshot privacy guidance.
+
 ## 0.1.0 - 2026-08-11
 
 - Initial public release.

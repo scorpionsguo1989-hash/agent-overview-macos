@@ -10,3 +10,7 @@ Contributions are welcome.
 Do not commit real session files, usage caches, screenshots, credentials, absolute
 home-directory paths, or vendor account identifiers. New usage adapters must not
 extract browser cookies, access tokens, passwords, or API keys.
+
+Documentation images must be rendered from deterministic synthetic fixtures.
+Do not capture a signed-in desktop, menu bar, account page, or live Agent Overview
+panel for public documentation.

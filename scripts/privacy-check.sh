@@ -15,6 +15,15 @@ if [[ -n "$forbidden_paths" ]]; then
   exit 1
 fi
 
+unexpected_public_images=$(find . -type f \( \
+  -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \
+\) -not -path './.git/*' -not -path './docs/assets/agent-overview-demo.png' -print)
+if [[ -n "$unexpected_public_images" ]]; then
+  echo "Unexpected public image found; documentation images must come from synthetic fixtures:" >&2
+  echo "$unexpected_public_images" >&2
+  exit 1
+fi
+
 absolute_home_pattern='/''Users/[^/[:space:]\"]+'
 if rg -n --hidden --glob '!.git/**' "$absolute_home_pattern" .; then
   echo "Absolute user path found" >&2
