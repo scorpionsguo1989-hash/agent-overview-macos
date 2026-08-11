@@ -15,6 +15,14 @@ xcrun swiftc -swift-version 5 -target "$swift_target" \
 
 xcrun swiftc -swift-version 5 -target "$swift_target" \
   "$project_dir/Sources/AgentStatusModel.swift" \
+  "$project_dir/Sources/UsageModels.swift" \
+  "$project_dir/Sources/OverviewAccessibility.swift" \
+  "$project_dir/Tests/OverviewAccessibilityTests.swift" \
+  -o "$test_dir/overview-accessibility-tests"
+"$test_dir/overview-accessibility-tests"
+
+xcrun swiftc -swift-version 5 -target "$swift_target" \
+  "$project_dir/Sources/AgentStatusModel.swift" \
   "$project_dir/Sources/StatusProvider.swift" \
   "$project_dir/Tests/StatusModelTests.swift" \
   -o "$test_dir/status-model-tests"
@@ -37,6 +45,7 @@ test -s "$test_dir/identity-badges.png"
 xcrun swiftc -swift-version 5 -target "$swift_target" -framework AppKit -framework SwiftUI \
   "$project_dir/Sources/AgentStatusModel.swift" \
   "$project_dir/Sources/UsageModels.swift" \
+  "$project_dir/Sources/OverviewAccessibility.swift" \
   "$project_dir/Sources/OverviewPanel.swift" \
   "$project_dir/Tests/OverviewRenderSmoke.swift" \
   -o "$test_dir/overview-render-smoke"

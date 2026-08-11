@@ -16,8 +16,17 @@ final class AgentOverviewViewModel: ObservableObject {
     func quit() { onQuit?() }
 }
 
+private enum AgentOverviewFocusTarget: Hashable {
+    case agent(String)
+    case openAgent(String)
+    case refresh
+    case watcher
+    case quit
+}
+
 struct AgentOverviewPanel: View {
     @ObservedObject var model: AgentOverviewViewModel
+    @FocusState private var focusedTarget: AgentOverviewFocusTarget?
 
     private var orderedAgents: [AgentSignalSnapshot] {
         let source = model.overview.status.agents
@@ -42,6 +51,7 @@ struct AgentOverviewPanel: View {
                         usageRefreshing: model.overview.usageRefreshing,
                         spinnerAngle: model.overview.spinnerAngle,
                         isExpanded: model.expandedKey == agent.definition.key,
+                        focusedTarget: $focusedTarget,
                         onToggle: {
                             withAnimation(.easeOut(duration: 0.16)) {
                                 model.expandedKey = model.expandedKey == agent.definition.key
@@ -55,6 +65,7 @@ struct AgentOverviewPanel: View {
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
+            .focusSection()
             Divider().opacity(0.42)
             footer
         }
@@ -110,6 +121,10 @@ struct AgentOverviewPanel: View {
             }
             .buttonStyle(.plain)
             .keyboardShortcut("r", modifiers: .command)
+            .accessibilityLabel(model.overview.usageRefreshing ? "正在刷新 Agent 状态和额度" : "立即刷新 Agent 状态和额度")
+            .accessibilityHint("键盘快捷键 Command R")
+            .focusable()
+            .focused($focusedTarget, equals: .refresh)
 
             if let checkedAt = model.overview.usageByKey.values.map(\.checkedAt).max() {
                 Text("用量 \(clock(checkedAt))")
@@ -128,6 +143,11 @@ struct AgentOverviewPanel: View {
             )
             .toggleStyle(.checkbox)
             .font(.system(size: 11))
+            .accessibilityLabel("随 Agent 启动")
+            .accessibilityValue(AgentOverviewAccessibility.watcherValue(enabled: model.overview.watcherEnabled))
+            .accessibilityHint("切换后决定是否随受支持的 Agent 启动")
+            .focusable()
+            .focused($focusedTarget, equals: .watcher)
 
             Button(action: model.quit) {
                 HStack(spacing: 3) {
@@ -137,11 +157,16 @@ struct AgentOverviewPanel: View {
             }
             .buttonStyle(.plain)
             .keyboardShortcut("q", modifiers: .command)
+            .accessibilityLabel("退出 Agent Overview")
+            .accessibilityHint("键盘快捷键 Command Q")
+            .focusable()
+            .focused($focusedTarget, equals: .quit)
         }
         .font(.system(size: 11))
         .foregroundStyle(.secondary)
         .padding(.horizontal, 13)
         .padding(.vertical, 8)
+        .focusSection()
     }
 
     private func rank(_ agent: AgentSignalSnapshot) -> Int {
@@ -176,6 +201,7 @@ private struct AgentOverviewRow: View {
     let usageRefreshing: Bool
     let spinnerAngle: CGFloat
     let isExpanded: Bool
+    let focusedTarget: FocusState<AgentOverviewFocusTarget?>.Binding
     let onToggle: () -> Void
     let onOpen: () -> Void
 
@@ -203,6 +229,18 @@ private struct AgentOverviewRow: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(AgentOverviewAccessibility.rowLabel(for: agent))
+            .accessibilityValue(
+                AgentOverviewAccessibility.rowValue(
+                    for: agent,
+                    usage: usage,
+                    usageRefreshing: usageRefreshing,
+                    isExpanded: isExpanded
+                )
+            )
+            .accessibilityHint(AgentOverviewAccessibility.rowHint(isExpanded: isExpanded))
+            .focusable()
+            .focused(focusedTarget, equals: .agent(agent.definition.key))
 
             if isExpanded {
                 detail
@@ -221,6 +259,7 @@ private struct AgentOverviewRow: View {
             .foregroundStyle(.white)
             .frame(width: 27, height: 27)
             .background(OverviewPalette.brand(agent.definition.shortLabel), in: RoundedRectangle(cornerRadius: 7))
+            .accessibilityHidden(true)
     }
 
     private var identity: some View {
@@ -245,6 +284,7 @@ private struct AgentOverviewRow: View {
         HStack(spacing: 4) {
             AgentStateLamp(state: agent.state, spinnerAngle: spinnerAngle)
                 .frame(width: 11, height: 11)
+                .accessibilityHidden(true)
             Text(agent.state.chineseLabel)
                 .font(.system(size: 11.5, weight: .medium))
                 .foregroundStyle(OverviewPalette.statusText(agent.state))
@@ -264,6 +304,11 @@ private struct AgentOverviewRow: View {
                             .fill(quotaColor(window.remainingPercent))
                             .frame(width: max(2, geometry.size.width * window.remainingPercent / 100))
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(window.label)
+                    .accessibilityValue(
+                        "\(window.approximate ? "约 " : "")剩余 \(formatPercent(window.remainingPercent))%，\(resetText(window.resetsAt))"
+                    )
                 }
                 .frame(width: 52, height: 5)
                 Text("\(Int(window.remainingPercent.rounded()))%")
@@ -329,6 +374,10 @@ private struct AgentOverviewRow: View {
                 Button("打开 \(agent.definition.title)", action: onOpen)
                     .buttonStyle(.borderless)
                     .foregroundStyle(Color.accentColor)
+                    .accessibilityLabel("打开 \(agent.definition.title)")
+                    .accessibilityHint("在对应应用或网页中打开")
+                    .focusable()
+                    .focused(focusedTarget, equals: .openAgent(agent.definition.key))
             }
             .font(.system(size: 9.5))
             .foregroundStyle(.tertiary)

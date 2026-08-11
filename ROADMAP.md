@@ -3,7 +3,7 @@
 ## Near term
 
 - Add a notarized release pipeline when signing infrastructure is available.
-- Improve accessibility labels and keyboard navigation.
+- Expand VoiceOver coverage for transient errors and reset-time announcements.
 - Add documented, credential-free adapter interfaces.
 - Expand deterministic fixtures for agent state transitions.
 

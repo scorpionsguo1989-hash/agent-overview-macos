@@ -1,9 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 - 2026-08-11
 
 - Added a synthetic-data UI preview to the public documentation.
 - Added clearer community contribution and screenshot privacy guidance.
+- Added VoiceOver labels, values, and hints for every interactive control.
+- Added explicit keyboard focus targets for agent rows and footer actions.
+- Added deterministic accessibility semantics tests.
 
 ## 0.1.0 - 2026-08-11
 

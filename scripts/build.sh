@@ -25,6 +25,7 @@ xcrun swiftc \
   "$project_dir/Sources/StatusProvider.swift" \
   "$project_dir/Sources/SignalRenderer.swift" \
   "$project_dir/Sources/UsageModels.swift" \
+  "$project_dir/Sources/OverviewAccessibility.swift" \
   "$project_dir/Sources/UsageProvider.swift" \
   "$project_dir/Sources/OverviewPanel.swift" \
   "$project_dir/Sources/main.swift" \
