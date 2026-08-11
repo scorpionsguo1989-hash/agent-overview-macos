@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Privacy gate
+        run: ./scripts/privacy-check.sh
+      - name: Test
+        run: ./scripts/test.sh
+      - name: Build and verify signature
+        run: ./scripts/build.sh
